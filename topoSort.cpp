@@ -1,5 +1,7 @@
 vector<int> topo; //Stores lexicographically smallest toposort
 vector<int> g[N];
+// or use the adjacency 
+unordered_map<int,vector<int>>g;
 bool toposort() //Returns 1 if there exists a toposort, 0 if there is a cycle
 {   
     priority_queue<int, vector<int>, greater<int> > pq;
