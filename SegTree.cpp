@@ -1,73 +1,45 @@
-int n;
-int a[N], b[N]; 
+class SGTree {
+	vector<int> seg;
+public:
+	SGTree(int n) {
+		seg.resize(4 * n + 1);
+	}
 
-// 
-struct SegTree
-{
-     int N;
-     vector<int> st;
-    
-     void init(int n)
-     {
-          N = n;
-          st.resize(4 * N + 5);
-     }
+	void build(int ind, int low, int high, int arr[]) {
+		if (low == high) {
+			seg[ind] = arr[low];
+			return;
+		}
 
-     
+		int mid = (low + high) / 2;
+		build(2 * ind + 1, low, mid, arr);
+		build(2 * ind + 2, mid + 1, high, arr);
+		seg[ind] = min(seg[2 * ind + 1], seg[2 * ind + 2]);
+	}
 
-     void Build(int node, int L, int R)
-     {
-          if (L == R)
-          {
-               st[node] = b[L];
-               return;
-          }
-          int M = (L + R) / 2;
-          Build(node * 2, L, M);
-          Build(node * 2 + 1, M + 1, R);
-          st[node] = max(st[node * 2], st[node * 2 + 1]);
-     }
+	int query(int ind, int low, int high, int l, int r) {
+		// no overlap
+		// l r low high or low high l r
+		if (r < low || high < l) return INT_MAX;
 
-     void Update(int node, int L, int R, int pos, int val)
-     {
-          if (L == R)
-          {
-               st[node] += val;
-               return;
-          }
-          int M = (L + R) / 2;
-          if (pos <= M)
-               Update(node * 2, L, M, pos, val);
-          else
-               Update(node * 2 + 1, M + 1, R, pos, val);
+		// complete overlap
+		// [l low high r]
+		if (low >= l && high <= r) return seg[ind];
 
-          st[node] = max(st[node * 2], st[node * 2 + 1]);
-     }
+		int mid = (low + high) >> 1;
+		int left = query(2 * ind + 1, low, mid, l, r);
+		int right = query(2 * ind + 2, mid + 1, high, l, r);
+		return min(left, right);
+	}
+	void update(int ind, int low, int high, int i, int val) {
+		if (low == high) {
+			seg[ind] = val;
+			return;
+		}
 
-     int Query(int node, int L, int R, int i, int j)
-     {
-          if (j < L || i > R)
-               return 0;
-          if (i <= L && R <= j)
-               return st[node];
-          int M = (L + R) / 2; 
-          return max(Query(node * 2, L, M, i, j), Query(node * 2 + 1, M + 1, R, i, j));
-          
-     }
-
-     
-
-     int query(int l, int r) { return Query(1, 1, N, l, r); }
-
-     void update(int pos, int val) { Update(1, 1, N, pos, val); }
-
-     void build() { Build(1, 1, N); }
-
+		int mid = (low + high) >> 1;
+		if (i <= mid) update(2 * ind + 1, low, mid, i, val);
+		else update(2 * ind + 2, mid + 1, high, i, val);
+		seg[ind] = min(seg[2 * ind + 1], seg[2 * ind + 2]);
+	}
 };
-SegTree seg;
-
-void solve()
-{
-  seg.init(4 * n);
-  seg.build();
-}
