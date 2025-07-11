@@ -21,7 +21,6 @@ public:
 		// no overlap
 		// l r low high or low high l r
 		if (r < low || high < l) return INT_MAX;
-
 		// complete overlap
 		// [l low high r]
 		if (low >= l && high <= r) return seg[ind];
